@@ -121,6 +121,7 @@ class UserAllSchema(ma.Schema):
     lat = fields.String()
     log = fields.String()
     creation_date=fields.String()
+    level=fields.String()
      
 class UserAuthSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

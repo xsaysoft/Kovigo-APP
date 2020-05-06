@@ -300,7 +300,7 @@ class PasswordSetResource(Resource):
         db.session.commit()
         
         token=jwt.encode({'phone': user.phone,'password': user.password,'full_name': user.full_name, 'device_id': user.device_id,'exp' : datetime.datetime.utcnow()+ datetime.timedelta(minutes=525600)},SECRET_KEY,algorithm='HS256')
-        return { "status": 'success', "data": {'code':PASSWORD_SUCCESSFUL,'message': 'password set was successful','token':token.decode('UTF-8')}}, 200
+        return { "status": 'success', "data": {'code':PASSWORD_SUCCESSFUL,'message': 'password set was successful',"username":user.username,"full name":user.full_name,'token':token.decode('UTF-8')}}, 200
 
 
     #
@@ -447,7 +447,7 @@ class SplashSetResource(Resource):
         user = User.query.filter_by(phone=current_data['phone'],device_id=current_data['device_id'],password=current_data['password']).first()
         if user:
             token=jwt.encode({'phone': user.phone,'password': user.password,'full_name': user.full_name, 'device_id': user.device_id,'exp' : datetime.datetime.utcnow()+ datetime.timedelta(seconds=1)},SECRET_KEY,algorithm='HS256')
-            return  {'status': "success","data": {"code":LOGIN_SUCCESSFUL,"message": "Login successful",'token':token.decode('UTF-8')}}, 200
+            return  {'status': "success","data": {"code":LOGIN_SUCCESSFUL,"message": "Login successful","username":user.username,"full name":user.full_name,'token':token.decode('UTF-8')}}, 200
 
         
         
