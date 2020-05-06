@@ -118,13 +118,12 @@ class RegResource(Resource):
         
         user = User.query.filter(and_(User.phone==data['phone'],User.status == 1)).first()
         if  user:
-            user = UnLinkLog(phone=data['phone'],device_id=user.device_id,user_id=user.id)
-            save=save_changes(user)
             user.device_id=data['device_id']
             db.session.commit()
+            user = UnLinkLog(phone=data['phone'],device_id=user.device_id,user_id=user.id)
+            save=save_changes(user)
             
-            if save:
-               return  {'status': "error","data": {"code":USERFOUND,"message":'User already exists (take to login) ','phone':user.phone}}, 200
+            return  {'status': "error","data": {"code":USERFOUND,"message":'User already exists (take to login) ','phone':user.phone}}, 200
             print ('Activated phone number found (take to unlink phone)')
 
         user = User.query.filter(and_(User.device_id==data['device_id'],User.status == 1)).first()
@@ -361,6 +360,9 @@ class PasswordSetResource(Resource):
         if not 'activation_code' in request.json:
             return  {'status': "error","data": {"code":NO_INPUT,"message": "Missing (activation_code) field."}}, 200 
 
+        if not 'password' in request.json:
+            return  {'status': "error","data": {"code":NO_INPUT,"message": "Missing (password) field."}}, 200 
+
         user = AuthCode.query.filter_by(phone=data['phone'],device_id=data['device_id'],activation=data['activation_code'],auth_status = 0).first()
         if not user:
             return  {'status': "error","data": {"code":INVALID_CODE,"message": "activation code does not match."}}, 200 
@@ -485,7 +487,7 @@ class LoginSetResource(Resource):
                     userlog.log_status=1
                     db.session.commit()
             
-            return  {'status': "success","data": {"code":LOGIN_SUCCESSFUL,"message": "Login successful","level": user.level,"token":token.decode('UTF-8')}}, 200
+            return  {'status': "success","data": {"code":LOGIN_SUCCESSFUL,"message": "Login successful","level": user.level,"username":user.username,"full name":user.full_name,"token":token.decode('UTF-8')}}, 200
 
         return  {'status': "error","data": {"code":INVALID_LOGIN ,"message": "Invalid Login details"}}, 200
 

@@ -94,6 +94,7 @@ class UserSchema(ma.Schema):
     status = fields.String()
     lat = fields.String()
     log = fields.String()
+    level=fields.String()
 
 
 class AuthCodeSchema(ma.Schema):
@@ -119,6 +120,7 @@ class UserAllSchema(ma.Schema):
     status = fields.String()
     lat = fields.String()
     log = fields.String()
+    creation_date=fields.String()
      
 class UserAuthSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
