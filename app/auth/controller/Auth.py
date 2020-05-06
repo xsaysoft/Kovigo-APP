@@ -122,9 +122,27 @@ class RegResource(Resource):
             db.session.commit()
             user = UnLinkLog(phone=data['phone'],device_id=user.device_id,user_id=user.id)
             save=save_changes(user)
-            
-            return  {'status': "error","data": {"code":USERFOUND,"message":'User already exists (take to login) ','phone':user.phone}}, 200
+
+            if save:
+                auth_user = AuthCode.query.filter(and_(AuthCode.phone==data['phone'],AuthCode.device_id==data['device_id'],AuthCode.auth_status == 0)).first()
+                if not auth_user:
+                    user = AuthCode(phone=data['phone'],device_id=data['device_id'],activation=verify_code,auth_status=0)
+                    save_changes(user)
+                    #remove verify_code on production
+                    code_msg= "Your Verification code is  :" + str(verify_code)
+                    sms_token(str(data['phone']),code_msg)
+                    return  {'status': "success","data": {"code":SUCCESSFUL,"verify_code": verify_code}}, 200
+                else:
+                    auth_user.activation=verify_code
+                    db.session.commit()
+                    #remove verify_code on production
+                    code_msg= "Your Verification code is  :" + str(verify_code)
+                    sms_token(str(data['phone']),code_msg)
+                    return  {'status': "success","data": {"code":SUCCESSFUL,"verify_code": verify_code}}, 200
             print ('Activated phone number found (take to unlink phone)')
+            
+            #return  {'status': "error","data": {"code":USERFOUND,"message":'User already exists (take to login) ','phone':user.phone}}, 200
+           
 
         user = User.query.filter(and_(User.device_id==data['device_id'],User.status == 1)).first()
         if  user:
